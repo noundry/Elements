@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noundry Elements - Alpine.js Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        input:invalid {
+            border-color: #e74c3c;
+        }
+        
+        input:valid {
+            border-color: #27ae60;
+        }
+        
+        .noundry-error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        button.secondary {
+            background: #95a5a6;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .badge-dirty { background: #f39c12; color: white; }
+        .badge-clean { background: #95a5a6; color: white; }
+        .badge-valid { background: #27ae60; color: white; }
+        .badge-invalid { background: #e74c3c; color: white; }
+        .badge-submitting { background: #9b59b6; color: white; }
+        
+        .form-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .values-display {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        
+        .error-list {
+            background: #fdf2f2;
+            border: 1px solid #e74c3c;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 10px;
+            border-radius: 4px;
+            overflow: auto;
+        }
+    </style>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body>
+    <h1>Noundry Elements with Alpine.js</h1>
+    
+    <div x-data="userForm()">
+        <noundry-element 
+            error-disable-submit 
+            x-ref="noundryForm"
+            @noundry-input="handleFormEvent"
+            @noundry-change="handleFormEvent"
+            @noundry-submit="handleSubmit"
+            @noundry-invalid="handleInvalid"
+        >
+            <div class="form-container">
+                <!-- Status Indicators -->
+                <div style="margin-bottom: 20px;">
+                    <span x-show="formState.isDirty" class="status-badge badge-dirty">DIRTY</span>
+                    <span x-show="!formState.isDirty" class="status-badge badge-clean">CLEAN</span>
+                    <span x-show="formState.isValid" class="status-badge badge-valid">VALID</span>
+                    <span x-show="!formState.isValid" class="status-badge badge-invalid">INVALID</span>
+                    <span x-show="formState.isSubmitting" class="status-badge badge-submitting">SUBMITTING</span>
+                </div>
+                
+                <form action="/api/users" method="POST">
+                    <div class="form-group">
+                        <label for="firstName">First Name (required)</label>
+                        <input 
+                            type="text" 
+                            id="firstName" 
+                            name="firstName" 
+                            required
+                            data-error="First name is required"
+                            x-model="formValues.firstName"
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Last Name (required)</label>
+                        <input 
+                            type="text" 
+                            id="lastName" 
+                            name="lastName" 
+                            required
+                            data-error="Last name is required"
+                            x-model="formValues.lastName"
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="username">Username (required, min 3 chars)</label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            required
+                            minlength="3"
+                            pattern="[a-zA-Z0-9_]+"
+                            data-error="Username is required"
+                            data-error-tooshort="Username must be at least 3 characters"
+                            data-error-patternmismatch="Username can only contain letters, numbers, and underscores"
+                            x-model="formValues.username"
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email (required)</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            required
+                            data-error="Please enter a valid email address"
+                            x-model="formValues.email"
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password (required, min 8 chars)</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            required
+                            minlength="8"
+                            data-error="Password is required"
+                            data-error-tooshort="Password must be at least 8 characters"
+                            x-model="formValues.password"
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirmPassword"
+                            x-model="formValues.confirmPassword"
+                        >
+                        <div x-show="formValues.password && formValues.confirmPassword && formValues.password !== formValues.confirmPassword" 
+                             class="noundry-error">
+                            Passwords do not match
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="birthDate">Birth Date</label>
+                        <input 
+                            type="date" 
+                            id="birthDate" 
+                            name="birthDate"
+                            x-model="formValues.birthDate"
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input 
+                                type="checkbox" 
+                                name="agreeToTerms" 
+                                required
+                                data-error="You must agree to the terms and conditions"
+                                x-model="formValues.agreeToTerms"
+                            >
+                            I agree to the terms and conditions (required)
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input 
+                                type="checkbox" 
+                                name="newsletter" 
+                                x-model="formValues.newsletter"
+                            >
+                            Subscribe to newsletter
+                        </label>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <button type="submit" :disabled="formState.isSubmitting">
+                            <span x-show="!formState.isSubmitting">Create Account</span>
+                            <span x-show="formState.isSubmitting">Creating...</span>
+                        </button>
+                        <button type="button" class="secondary" @click="resetForm()">Reset</button>
+                        <button type="button" class="secondary" @click="fillSampleData()">Fill Sample</button>
+                    </div>
+                </form>
+            </div>
+        </noundry-element>
+        
+        <!-- Live Values Display -->
+        <div class="values-display">
+            <h3>Live Form Values:</h3>
+            <pre x-text="JSON.stringify(formValues, null, 2)"></pre>
+        </div>
+        
+        <!-- Error Display -->
+        <div x-show="Object.keys(formState.errors).length > 0" class="error-list">
+            <h4>Validation Errors:</h4>
+            <ul>
+                <template x-for="[field, error] in Object.entries(formState.errors)">
+                    <li><strong x-text="field"></strong>: <span x-text="error"></span></li>
+                </template>
+            </ul>
+        </div>
+        
+        <!-- Form State Display -->
+        <div class="values-display">
+            <h3>Form State:</h3>
+            <p><strong>Dirty:</strong> <span x-text="formState.isDirty"></span></p>
+            <p><strong>Valid:</strong> <span x-text="formState.isValid"></span></p>
+            <p><strong>Submitting:</strong> <span x-text="formState.isSubmitting"></span></p>
+            <p><strong>Can Submit:</strong> <span x-text="canSubmit"></span></p>
+        </div>
+    </div>
+    
+    <script src="noundry-elements.js"></script>
+    <script>
+        function userForm() {
+            return {
+                formValues: {
+                    firstName: '',
+                    lastName: '',
+                    username: '',
+                    email: '',
+                    password: '',
+                    confirmPassword: '',
+                    birthDate: '',
+                    agreeToTerms: false,
+                    newsletter: false
+                },
+                formState: {
+                    isDirty: false,
+                    isValid: true,
+                    isSubmitting: false,
+                    errors: {}
+                },
+                
+                init() {
+                    // Set up custom validation for password confirmation
+                    this.$nextTick(() => {
+                        const noundryEl = this.$refs.noundryForm;
+                        
+                        noundryEl.setValidationRule('confirmPassword', (value, allValues) => {
+                            if (allValues.password && value && allValues.password !== value) {
+                                return 'Passwords do not match';
+                            }
+                            return null;
+                        });
+                        
+                        noundryEl.setValidationRule('username', (value) => {
+                            if (value && value.length >= 3 && /[^a-zA-Z0-9_]/.test(value)) {
+                                return 'Username can only contain letters, numbers, and underscores';
+                            }
+                            return null;
+                        });
+                        
+                        // Initial state update
+                        this.updateFormState();
+                    });
+                },
+                
+                handleFormEvent(event) {
+                    this.formValues = { ...event.detail.values };
+                    this.updateFormState();
+                },
+                
+                handleSubmit(event) {
+                    console.log('Form submitted with values:', event.detail.values);
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        alert('Account created successfully!');
+                        this.updateFormState();
+                    }, 2000);
+                },
+                
+                handleInvalid(event) {
+                    console.log('Form validation failed:', event.detail.errors);
+                    alert('Please fix the validation errors before submitting.');
+                },
+                
+                updateFormState() {
+                    const noundryEl = this.$refs.noundryForm;
+                    if (noundryEl && noundryEl.$noundry) {
+                        const state = noundryEl.$noundry;
+                        this.formState = {
+                            isDirty: state.isDirty,
+                            isValid: state.isValid,
+                            isSubmitting: state.isSubmitting,
+                            errors: { ...state.errors }
+                        };
+                    }
+                },
+                
+                resetForm() {
+                    this.$refs.noundryForm.reset();
+                    this.formValues = {
+                        firstName: '',
+                        lastName: '',
+                        username: '',
+                        email: '',
+                        password: '',
+                        confirmPassword: '',
+                        birthDate: '',
+                        agreeToTerms: false,
+                        newsletter: false
+                    };
+                    this.updateFormState();
+                },
+                
+                fillSampleData() {
+                    const sampleData = {
+                        firstName: 'Jane',
+                        lastName: 'Doe',
+                        username: 'janedoe123',
+                        email: 'jane.doe@example.com',
+                        password: 'securePassword123',
+                        confirmPassword: 'securePassword123',
+                        birthDate: '1990-01-01',
+                        agreeToTerms: true,
+                        newsletter: true
+                    };
+                    
+                    this.$refs.noundryForm.setValues(sampleData);
+                    this.formValues = { ...sampleData };
+                    this.updateFormState();
+                },
+                
+                get canSubmit() {
+                    return this.formState.isValid && 
+                           !this.formState.isSubmitting && 
+                           this.formValues.password === this.formValues.confirmPassword;
+                }
+            };
+        }
+    </script>
+</body>
+</html>

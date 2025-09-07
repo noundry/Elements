@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Experience Survey - Noundry Elements</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .noundry-error {
+            @apply text-red-500 text-sm mt-1 block;
+        }
+        .progress-step {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl" x-data="surveyForm()">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Customer Experience Survey</h1>
+            <p class="text-gray-600">Help us improve our services by sharing your experience</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-700">Progress</span>
+                <span class="text-sm text-gray-500" x-text="`${currentStep} of ${totalSteps}`"></span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-primary-600 h-2 rounded-full transition-all duration-300" 
+                     :style="`width: ${(currentStep / totalSteps) * 100}%`"></div>
+            </div>
+        </div>
+
+        <noundry-element 
+            error-disable-submit
+            x-ref="surveyForm"
+            @noundry-submit="handleSubmit"
+            @noundry-input="updateProgress"
+            class="bg-white rounded-lg shadow-lg overflow-hidden"
+        >
+            <form action="/api/survey" method="POST" class="divide-y divide-gray-200">
+                
+                <!-- Step 1: Personal Information -->
+                <div class="p-6 space-y-6" x-show="currentStep >= 1">
+                    <div class="border-l-4 border-primary-500 pl-4">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-1">Personal Information</h2>
+                        <p class="text-gray-600 text-sm">Tell us a little about yourself</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">
+                                First Name <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="firstName" 
+                                name="firstName" 
+                                required
+                                data-error="Please enter your first name"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                                placeholder="Enter your first name"
+                                x-model="formData.firstName"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">
+                                Last Name <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="lastName" 
+                                name="lastName" 
+                                required
+                                data-error="Please enter your last name"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                                placeholder="Enter your last name"
+                                x-model="formData.lastName"
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            Email Address <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            required
+                            data-error="Please enter a valid email address"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                            placeholder="your.email@example.com"
+                            x-model="formData.email"
+                        >
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="age" class="block text-sm font-medium text-gray-700 mb-2">Age Range</label>
+                            <select 
+                                id="age" 
+                                name="age"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                                x-model="formData.age"
+                            >
+                                <option value="">Select age range</option>
+                                <option value="18-24">18-24</option>
+                                <option value="25-34">25-34</option>
+                                <option value="35-44">35-44</option>
+                                <option value="45-54">45-54</option>
+                                <option value="55-64">55-64</option>
+                                <option value="65+">65+</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="customerType" class="block text-sm font-medium text-gray-700 mb-2">
+                                Customer Type <span class="text-red-500">*</span>
+                            </label>
+                            <select 
+                                id="customerType" 
+                                name="customerType"
+                                required
+                                data-error="Please select your customer type"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                                x-model="formData.customerType"
+                            >
+                                <option value="">Select customer type</option>
+                                <option value="new">New Customer (< 6 months)</option>
+                                <option value="returning">Returning Customer (6 months - 2 years)</option>
+                                <option value="loyal">Loyal Customer (2+ years)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Service Experience -->
+                <div class="p-6 space-y-6" x-show="currentStep >= 2">
+                    <div class="border-l-4 border-primary-500 pl-4">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-1">Service Experience</h2>
+                        <p class="text-gray-600 text-sm">Rate your experience with our services</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Overall Satisfaction -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Overall Satisfaction <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex flex-wrap gap-4">
+                                <template x-for="rating in satisfactionRatings" :key="rating.value">
+                                    <label class="flex items-center cursor-pointer group">
+                                        <input 
+                                            type="radio" 
+                                            name="overallSatisfaction" 
+                                            :value="rating.value"
+                                            required
+                                            data-error="Please rate your overall satisfaction"
+                                            class="sr-only"
+                                            x-model="formData.overallSatisfaction"
+                                        >
+                                        <div class="flex items-center space-x-2 px-4 py-2 rounded-lg border-2 transition-all"
+                                             :class="formData.overallSatisfaction === rating.value 
+                                                ? 'border-primary-500 bg-primary-50 text-primary-700' 
+                                                : 'border-gray-200 hover:border-gray-300 text-gray-700'">
+                                            <span x-text="rating.emoji" class="text-xl"></span>
+                                            <span class="text-sm font-medium" x-text="rating.label"></span>
+                                        </div>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Service Quality Ratings -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-medium text-gray-900">Rate the following aspects:</h3>
+                            
+                            <template x-for="aspect in serviceAspects" :key="aspect.name">
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <span class="font-medium text-gray-700" x-text="aspect.label"></span>
+                                    <div class="flex space-x-2">
+                                        <template x-for="i in 5" :key="i">
+                                            <button 
+                                                type="button"
+                                                @click="setRating(aspect.name, i)"
+                                                class="text-2xl transition-colors focus:outline-none"
+                                                :class="(formData.ratings[aspect.name] || 0) >= i 
+                                                    ? 'text-yellow-400' 
+                                                    : 'text-gray-300 hover:text-yellow-200'"
+                                            >
+                                                ★
+                                            </button>
+                                        </template>
+                                        <input type="hidden" :name="`rating_${aspect.name}`" :value="formData.ratings[aspect.name] || ''" />
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Service Usage -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Which services have you used? (Select all that apply)
+                            </label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <template x-for="service in services" :key="service.value">
+                                    <label class="flex items-center space-x-3 cursor-pointer group">
+                                        <input 
+                                            type="checkbox" 
+                                            :name="`service_${service.value}`"
+                                            :value="service.value"
+                                            class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-2 focus:ring-primary-500"
+                                            x-model="formData.servicesUsed"
+                                        >
+                                        <span class="text-sm text-gray-700 group-hover:text-gray-900" x-text="service.label"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Feedback -->
+                <div class="p-6 space-y-6" x-show="currentStep >= 3">
+                    <div class="border-l-4 border-primary-500 pl-4">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-1">Your Feedback</h2>
+                        <p class="text-gray-600 text-sm">Share your thoughts and suggestions</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- What did you like most -->
+                        <div>
+                            <label for="likedMost" class="block text-sm font-medium text-gray-700 mb-2">
+                                What did you like most about our service?
+                            </label>
+                            <textarea 
+                                id="likedMost" 
+                                name="likedMost"
+                                rows="3"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none"
+                                placeholder="Tell us what you enjoyed..."
+                                x-model="formData.likedMost"
+                            ></textarea>
+                        </div>
+
+                        <!-- Improvements -->
+                        <div>
+                            <label for="improvements" class="block text-sm font-medium text-gray-700 mb-2">
+                                How can we improve our service?
+                            </label>
+                            <textarea 
+                                id="improvements" 
+                                name="improvements"
+                                rows="3"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none"
+                                placeholder="Share your suggestions..."
+                                x-model="formData.improvements"
+                            ></textarea>
+                        </div>
+
+                        <!-- Recommendation -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                How likely are you to recommend us to others? <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <span class="text-sm text-gray-600">Not likely</span>
+                                <div class="flex space-x-2">
+                                    <template x-for="i in 10" :key="i">
+                                        <button 
+                                            type="button"
+                                            @click="formData.recommendationScore = i"
+                                            class="w-8 h-8 rounded-full border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                            :class="formData.recommendationScore === i 
+                                                ? 'bg-primary-600 border-primary-600 text-white' 
+                                                : 'border-gray-300 hover:border-gray-400 text-gray-700'"
+                                            x-text="i"
+                                        >
+                                        </button>
+                                    </template>
+                                </div>
+                                <span class="text-sm text-gray-600">Very likely</span>
+                            </div>
+                            <input type="hidden" name="recommendationScore" :value="formData.recommendationScore" required data-error="Please provide a recommendation score">
+                        </div>
+
+                        <!-- Contact Permission -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <label class="flex items-start space-x-3 cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    name="contactPermission"
+                                    value="yes"
+                                    class="mt-1 h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-2 focus:ring-primary-500"
+                                    x-model="formData.contactPermission"
+                                >
+                                <div>
+                                    <span class="text-sm font-medium text-gray-900">Contact Permission</span>
+                                    <p class="text-xs text-gray-600 mt-1">
+                                        I agree to be contacted about this feedback and future service improvements.
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation and Submit -->
+                <div class="px-6 py-4 bg-gray-50 flex justify-between items-center">
+                    <div class="text-sm text-gray-600">
+                        <span x-show="formState.isDirty" class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-amber-100 text-amber-800">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            Unsaved changes
+                        </span>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button 
+                            type="button"
+                            @click="resetForm()"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                        >
+                            Reset Form
+                        </button>
+                        
+                        <button 
+                            type="submit"
+                            :disabled="!formState.isValid || formState.isSubmitting"
+                            class="px-6 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            :class="{'animate-pulse': formState.isSubmitting}"
+                        >
+                            <span x-show="!formState.isSubmitting">Submit Survey</span>
+                            <span x-show="formState.isSubmitting" class="flex items-center">
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Submitting...
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </noundry-element>
+
+        <!-- Success Message -->
+        <div x-show="submitted" x-cloak 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                <div class="flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-full mb-4">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 text-center mb-2">Thank You!</h3>
+                <p class="text-gray-600 text-center mb-4">Your feedback has been submitted successfully. We appreciate your time and input!</p>
+                <button 
+                    @click="submitted = false; resetForm()"
+                    class="w-full px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                >
+                    Submit Another Survey
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="noundry-elements.js"></script>
+    <script>
+        function surveyForm() {
+            return {
+                currentStep: 1,
+                totalSteps: 3,
+                submitted: false,
+                formData: {
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    age: '',
+                    customerType: '',
+                    overallSatisfaction: '',
+                    ratings: {},
+                    servicesUsed: [],
+                    likedMost: '',
+                    improvements: '',
+                    recommendationScore: '',
+                    contactPermission: false
+                },
+                formState: {
+                    isDirty: false,
+                    isValid: false,
+                    isSubmitting: false,
+                    errors: {}
+                },
+                satisfactionRatings: [
+                    { value: 'very-dissatisfied', label: 'Very Dissatisfied', emoji: '😞' },
+                    { value: 'dissatisfied', label: 'Dissatisfied', emoji: '😕' },
+                    { value: 'neutral', label: 'Neutral', emoji: '😐' },
+                    { value: 'satisfied', label: 'Satisfied', emoji: '😊' },
+                    { value: 'very-satisfied', label: 'Very Satisfied', emoji: '😄' }
+                ],
+                serviceAspects: [
+                    { name: 'quality', label: 'Service Quality' },
+                    { name: 'speed', label: 'Response Time' },
+                    { name: 'support', label: 'Customer Support' },
+                    { name: 'value', label: 'Value for Money' },
+                    { name: 'ease', label: 'Ease of Use' }
+                ],
+                services: [
+                    { value: 'consultation', label: 'Consultation Services' },
+                    { value: 'support', label: 'Technical Support' },
+                    { value: 'training', label: 'Training & Education' },
+                    { value: 'implementation', label: 'Implementation Services' },
+                    { value: 'maintenance', label: 'Maintenance & Updates' },
+                    { value: 'custom', label: 'Custom Development' }
+                ],
+
+                init() {
+                    this.$nextTick(() => {
+                        // Set up custom validations
+                        const noundryEl = this.$refs.surveyForm;
+                        
+                        noundryEl.setValidationRule('recommendationScore', (value) => {
+                            if (!value || value < 1 || value > 10) {
+                                return 'Please provide a recommendation score from 1 to 10';
+                            }
+                            return null;
+                        });
+
+                        this.updateFormState();
+                    });
+                },
+
+                updateProgress() {
+                    this.updateFormState();
+                    this.calculateStep();
+                },
+
+                calculateStep() {
+                    const requiredFields = {
+                        1: ['firstName', 'lastName', 'email', 'customerType'],
+                        2: ['overallSatisfaction'],
+                        3: ['recommendationScore']
+                    };
+
+                    let completedStep = 0;
+                    for (let step = 1; step <= this.totalSteps; step++) {
+                        const fieldsForStep = requiredFields[step] || [];
+                        const allFieldsFilled = fieldsForStep.every(field => {
+                            if (field === 'recommendationScore') {
+                                return this.formData[field] >= 1 && this.formData[field] <= 10;
+                            }
+                            return this.formData[field] && this.formData[field].trim() !== '';
+                        });
+                        
+                        if (allFieldsFilled) {
+                            completedStep = step + 1;
+                        }
+                    }
+                    
+                    this.currentStep = Math.max(1, Math.min(completedStep, this.totalSteps));
+                },
+
+                setRating(aspect, rating) {
+                    this.formData.ratings[aspect] = rating;
+                    // Trigger form update
+                    this.updateFormState();
+                },
+
+                updateFormState() {
+                    const noundryEl = this.$refs.surveyForm;
+                    if (noundryEl && noundryEl.$noundry) {
+                        const state = noundryEl.$noundry;
+                        this.formState = {
+                            isDirty: state.isDirty,
+                            isValid: state.isValid,
+                            isSubmitting: state.isSubmitting,
+                            errors: { ...state.errors }
+                        };
+                    }
+                },
+
+                async handleSubmit(event) {
+                    console.log('Survey submitted:', event.detail.values);
+                    console.log('Form data:', this.formData);
+                    
+                    // Simulate API submission
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    this.submitted = true;
+                },
+
+                resetForm() {
+                    this.$refs.surveyForm.reset();
+                    this.formData = {
+                        firstName: '',
+                        lastName: '',
+                        email: '',
+                        age: '',
+                        customerType: '',
+                        overallSatisfaction: '',
+                        ratings: {},
+                        servicesUsed: [],
+                        likedMost: '',
+                        improvements: '',
+                        recommendationScore: '',
+                        contactPermission: false
+                    };
+                    this.currentStep = 1;
+                    this.updateFormState();
+                }
+            };
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noundry Elements - Basic Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        .noundry-error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        noundry-element[data-dirty="true"] {
+            border-left: 4px solid #f39c12;
+            padding-left: 16px;
+        }
+        
+        noundry-element[data-valid="false"] {
+            border-left: 4px solid #e74c3c;
+        }
+        
+        noundry-element[data-valid="true"][data-dirty="true"] {
+            border-left: 4px solid #27ae60;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Noundry Elements - Basic Form Validation</h1>
+    
+    <noundry-element error-disable-submit reset-on-submit>
+        <form action="/api/contact" method="POST">
+            <div class="form-group">
+                <label for="name">Name (required)</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    required
+                    data-error="Please enter your name"
+                    data-error-toolong="Name is too long (max 50 characters)"
+                    maxlength="50"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email (required)</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    required
+                    data-error="Please enter a valid email address"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone"
+                    pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                    data-error="Please enter phone in format: 123-456-7890"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input 
+                    type="number" 
+                    id="age" 
+                    name="age"
+                    min="18"
+                    max="120"
+                    data-error-rangeunderflow="You must be at least 18 years old"
+                    data-error-rangeoverflow="Please enter a valid age"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Message (required)</label>
+                <textarea 
+                    id="message" 
+                    name="message" 
+                    rows="4" 
+                    required
+                    minlength="10"
+                    data-error="Please enter a message"
+                    data-error-tooshort="Message must be at least 10 characters long"
+                ></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select id="country" name="country" required>
+                    <option value="">Select a country</option>
+                    <option value="us">United States</option>
+                    <option value="ca">Canada</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="fr">France</option>
+                    <option value="de">Germany</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="subscribe" value="yes">
+                    Subscribe to newsletter
+                </label>
+            </div>
+            
+            <button type="submit">Submit Form</button>
+        </form>
+    </noundry-element>
+    
+    <div class="status">
+        <h3>Form Status</h3>
+        <div id="status-info"></div>
+    </div>
+    
+    <script src="noundry-elements.js"></script>
+    <script>
+        const noundryElement = document.querySelector('noundry-element');
+        const statusInfo = document.getElementById('status-info');
+        
+        function updateStatus() {
+            const state = noundryElement.$noundry;
+            statusInfo.innerHTML = `
+                <p><strong>Is Dirty:</strong> ${state.isDirty}</p>
+                <p><strong>Is Valid:</strong> ${state.isValid}</p>
+                <p><strong>Is Submitting:</strong> ${state.isSubmitting}</p>
+                <p><strong>Errors:</strong> ${Object.keys(state.errors).length > 0 ? Object.keys(state.errors).join(', ') : 'None'}</p>
+                <p><strong>Current Values:</strong></p>
+                <pre>${JSON.stringify(state.values, null, 2)}</pre>
+            `;
+        }
+        
+        // Listen for form events
+        noundryElement.addEventListener('noundry-input', (e) => {
+            console.log('Input event:', e.detail);
+            updateStatus();
+        });
+        
+        noundryElement.addEventListener('noundry-change', (e) => {
+            console.log('Change event:', e.detail);
+            updateStatus();
+        });
+        
+        noundryElement.addEventListener('noundry-submit', (e) => {
+            console.log('Submit event:', e.detail);
+            alert('Form submitted! Check console for details.');
+        });
+        
+        noundryElement.addEventListener('noundry-invalid', (e) => {
+            console.log('Invalid form:', e.detail);
+            alert('Form has validation errors!');
+        });
+        
+        noundryElement.addEventListener('noundry-reset', () => {
+            console.log('Form reset');
+            updateStatus();
+        });
+        
+        // Custom validation example
+        noundryElement.setValidationRule('phone', (value, allValues) => {
+            if (value && !/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/.test(value)) {
+                return 'Phone must be in format: 123-456-7890';
+            }
+            return null; // No error
+        });
+        
+        // Initialize status display
+        setTimeout(updateStatus, 100);
+        
+        // Demo buttons
+        const demoControls = document.createElement('div');
+        demoControls.innerHTML = `
+            <h3>Demo Controls</h3>
+            <button onclick="noundryElement.setValues({name: 'John Doe', email: 'john@example.com', age: 25})">Fill Sample Data</button>
+            <button onclick="noundryElement.reset()">Reset Form</button>
+            <button onclick="console.log('Current values:', noundryElement.getValues())">Log Values to Console</button>
+        `;
+        document.body.appendChild(demoControls);
+    </script>
+</body>
+</html>
