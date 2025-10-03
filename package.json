@@ -1,0 +1,29 @@
+{
+  "name": "@noundryfx/noundry-elements",
+  "version": "1.0.0",
+  "description": "A powerful, lightweight form validation library for modern web applications",
+  "main": "noundry-elements.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noundry/elements.git"
+  },
+  "keywords": [
+    "form",
+    "validation",
+    "alpine.js",
+    "web-components",
+    "vanilla-js",
+    "html5",
+    "form-validation",
+    "custom-elements"
+  ],
+  "author": "noundryfx",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/noundry/elements/issues"
+  },
+  "homepage": "https://github.com/noundry/elements#readme"
+}

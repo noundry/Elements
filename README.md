@@ -20,14 +20,16 @@ Noundry Elements is a plain JavaScript form validation library inspired by [Info
 
 ## 📦 Installation
 
-### CDN (Recommended for quick start)
-```html
-<script src="https://unpkg.com/noundry-elements@latest/dist/noundry-elements.min.js"></script>
+### NPM (Recommended)
+```bash
+npm install @noundryfx/noundry-elements
 ```
 
-### NPM
-```bash
-npm install noundry-elements
+View on npmjs.com: [https://www.npmjs.com/package/@noundryfx/noundry-elements](https://www.npmjs.com/package/@noundryfx/noundry-elements)
+
+### CDN
+```html
+<script src="https://unpkg.com/@noundryfx/noundry-elements@latest/noundry-elements.js"></script>
 ```
 
 ### Download
